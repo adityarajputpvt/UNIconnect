@@ -1,0 +1,421 @@
+// Uni-Connect Prisma Schema
+// Production-grade normalized relational design
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum Role {
+  STUDENT
+  FACULTY
+  DEPARTMENT_ADMIN
+  SUPER_ADMIN
+}
+
+enum VerificationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  RESUBMISSION_REQUIRED
+}
+
+enum AchievementCategory {
+  ACADEMIC
+  CERTIFICATION
+  INTERNSHIP
+  WORKSHOP
+  HACKATHON
+  RESEARCH
+  LEADERSHIP
+  CLUB
+  VOLUNTEERING
+  AWARD
+  PEER_RECOGNITION
+  OTHER
+}
+
+enum NotificationType {
+  VERIFICATION_UPDATE
+  ACHIEVEMENT_APPROVED
+  ACHIEVEMENT_REJECTED
+  NEW_RECOMMENDATION
+  KUDOS_RECEIVED
+  POST_LIKE
+  POST_COMMENT
+  EVENT_REMINDER
+  SYSTEM
+}
+
+enum PostType {
+  GENERAL
+  ACHIEVEMENT
+  EVENT
+  ANNOUNCEMENT
+  CLUB
+}
+
+// ============================================
+// CORE MODELS
+// ============================================
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  password          String
+  role              Role      @default(STUDENT)
+  isEmailVerified   Boolean   @default(false)
+  emailVerifyToken  String?
+  resetPasswordToken String?
+  resetPasswordExpiry DateTime?
+  refreshToken      String?
+  isActive          Boolean   @default(true)
+  lastLoginAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  profile           Profile?
+  achievements      Achievement[]
+  verifications     Verification[]  @relation("ReviewerVerifications")
+  notifications     Notification[]
+  posts             Post[]
+  comments          Comment[]
+  kudosGiven        Kudos[]         @relation("KudosGiver")
+  kudosReceived     Kudos[]         @relation("KudosReceiver")
+  recommendations   Recommendation[]
+  auditLogs         AuditLog[]
+  department        Department?     @relation(fields: [departmentId], references: [id])
+  departmentId      String?
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+model Profile {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName       String
+  lastName        String
+  avatar          String?
+  coverImage      String?
+  bio             String?
+  headline        String?
+  phone           String?
+  location        String?
+  website         String?
+  linkedinUrl     String?
+  githubUrl       String?
+  twitterUrl      String?
+  resumeUrl       String?
+  rollNumber      String?   @unique
+  batch           String?
+  cgpa            Float?
+  completionScore Int       @default(0)
+  isPublic        Boolean   @default(true)
+  portfolioSlug   String?   @unique
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  skills          ProfileSkill[]
+  interests       Interest[]
+
+  @@index([userId])
+  @@index([portfolioSlug])
+  @@map("profiles")
+}
+
+model Department {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  code        String    @unique
+  description String?
+  headId      String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  users       User[]
+  achievements Achievement[]
+
+  @@map("departments")
+}
+
+model Skill {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  category    String?
+  createdAt   DateTime  @default(now())
+
+  profiles    ProfileSkill[]
+  achievements AchievementSkill[]
+
+  @@map("skills")
+}
+
+model ProfileSkill {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  skillId     String
+  skill       Skill     @relation(fields: [skillId], references: [id])
+  level       String?   // beginner, intermediate, advanced, expert
+  createdAt   DateTime  @default(now())
+
+  @@unique([profileId, skillId])
+  @@map("profile_skills")
+}
+
+model Interest {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name        String
+  createdAt   DateTime  @default(now())
+
+  @@map("interests")
+}
+
+// ============================================
+// ACHIEVEMENT MODELS
+// ============================================
+
+model Achievement {
+  id              String              @id @default(cuid())
+  userId          String
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  departmentId    String?
+  department      Department?         @relation(fields: [departmentId], references: [id])
+  title           String
+  description     String?
+  category        AchievementCategory
+  issuingAuthority String?
+  issueDate       DateTime?
+  expiryDate      DateTime?
+  credentialId    String?
+  credentialUrl   String?
+  status          VerificationStatus  @default(DRAFT)
+  isPublic        Boolean             @default(true)
+  isFeatured      Boolean             @default(false)
+  ocrConfidence   Float?
+  ocrRawText      String?
+  ocrMetadata     Json?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  // Relations
+  documents       Document[]
+  verifications   Verification[]
+  tags            AchievementTag[]
+  skills          AchievementSkill[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([category])
+  @@map("achievements")
+}
+
+model Document {
+  id            String      @id @default(cuid())
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  fileName      String
+  fileUrl       String
+  fileType      String
+  fileSize      Int
+  cloudinaryId  String?
+  isOcrProcessed Boolean   @default(false)
+  createdAt     DateTime    @default(now())
+
+  @@map("documents")
+}
+
+model Tag {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  createdAt   DateTime  @default(now())
+
+  achievements AchievementTag[]
+
+  @@map("tags")
+}
+
+model AchievementTag {
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  tagId         String
+  tag           Tag         @relation(fields: [tagId], references: [id])
+
+  @@id([achievementId, tagId])
+  @@map("achievement_tags")
+}
+
+model AchievementSkill {
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  skillId       String
+  skill         Skill       @relation(fields: [skillId], references: [id])
+
+  @@id([achievementId, skillId])
+  @@map("achievement_skills")
+}
+
+// ============================================
+// VERIFICATION MODELS
+// ============================================
+
+model Verification {
+  id            String              @id @default(cuid())
+  achievementId String
+  achievement   Achievement         @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  reviewerId    String?
+  reviewer      User?               @relation("ReviewerVerifications", fields: [reviewerId], references: [id])
+  status        VerificationStatus
+  remarks       String?
+  requestedAt   DateTime            @default(now())
+  reviewedAt    DateTime?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([achievementId])
+  @@index([reviewerId])
+  @@map("verifications")
+}
+
+// ============================================
+// SOCIAL MODELS
+// ============================================
+
+model Post {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        PostType  @default(GENERAL)
+  content     String
+  imageUrl    String?
+  isPublic    Boolean   @default(true)
+  likesCount  Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  comments    Comment[]
+  likes       PostLike[]
+
+  @@index([userId])
+  @@map("posts")
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  postId    String
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([postId])
+  @@map("comments")
+}
+
+model PostLike {
+  id        String    @id @default(cuid())
+  postId    String
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime  @default(now())
+
+  @@unique([postId, userId])
+  @@map("post_likes")
+}
+
+model Kudos {
+  id          String    @id @default(cuid())
+  giverId     String
+  giver       User      @relation("KudosGiver", fields: [giverId], references: [id])
+  receiverId  String
+  receiver    User      @relation("KudosReceiver", fields: [receiverId], references: [id])
+  message     String?
+  category    String?   // leadership, teamwork, innovation, etc.
+  createdAt   DateTime  @default(now())
+
+  @@index([receiverId])
+  @@map("kudos")
+}
+
+// ============================================
+// NOTIFICATION MODEL
+// ============================================
+
+model Notification {
+  id          String            @id @default(cuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        NotificationType
+  title       String
+  message     String
+  data        Json?
+  isRead      Boolean           @default(false)
+  createdAt   DateTime          @default(now())
+
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
+// ============================================
+// AI RECOMMENDATION MODEL
+// ============================================
+
+model Recommendation {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String    // internship, certification, club, career, skill
+  title       String
+  description String
+  url         String?
+  relevance   Float?    // 0-1 score
+  isActioned  Boolean   @default(false)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
+  @@map("recommendations")
+}
+
+// ============================================
+// AUDIT LOG MODEL
+// ============================================
+
+model AuditLog {
+  id          String    @id @default(cuid())
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
+  action      String
+  entity      String
+  entityId    String?
+  oldData     Json?
+  newData     Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@map("audit_logs")
+}
