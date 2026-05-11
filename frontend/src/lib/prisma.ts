@@ -5,7 +5,6 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
-// Reuse client across hot-reloads in development
 const prisma = global.prisma ?? new PrismaClient({
   log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
 });
@@ -15,8 +14,3 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 export default prisma;
-
-// Keep initialisePrisma as a no-op so index.ts doesn't need changes
-export async function initialisePrisma(): Promise<PrismaClient> {
-  return prisma;
-}

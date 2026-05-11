@@ -1,0 +1,68 @@
+services:
+  # ── Backend API ──────────────────────────────────────────────
+  - type: web
+    name: uniconnect-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: uniconnect-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: FRONTEND_URL
+        sync: false   # set manually in Render dashboard after frontend deploys
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: EMAIL_FROM
+        value: "Uni-Connect <noreply@uniconnect.edu>"
+
+  # ── Frontend ─────────────────────────────────────────────────
+  - type: web
+    name: uniconnect-frontend
+    runtime: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    plan: free
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        sync: false   # set to https://uniconnect-backend.onrender.com/api
+      - key: NEXT_PUBLIC_SOCKET_URL
+        sync: false   # set to https://uniconnect-backend.onrender.com
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false   # set to https://uniconnect-frontend.onrender.com
+
+# ── PostgreSQL Database ───────────────────────────────────────
+databases:
+  - name: uniconnect-db
+    plan: free
+    databaseName: uniconnect
+    user: uniconnect_user
