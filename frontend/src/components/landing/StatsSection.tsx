@@ -5,10 +5,10 @@ import { useInView } from 'react-intersection-observer';
 import { useEffect, useState } from 'react';
 
 const stats = [
-  { value: 50, suffix: '+', label: 'Universities', description: 'Partner institutions' },
-  { value: 100, suffix: 'K+', label: 'Students', description: 'Active on platform' },
-  { value: 500, suffix: 'K+', label: 'Achievements', description: 'Verified & tracked' },
-  { value: 98, suffix: '%', label: 'Satisfaction', description: 'Student approval rate' },
+  { value: 12, suffix: '+', label: 'Universities', description: 'Pilot institutions onboarded' },
+  { value: 2500, suffix: '+', label: 'Students', description: 'Active on platform' },
+  { value: 8000, suffix: '+', label: 'Achievements', description: 'Verified & tracked' },
+  { value: 96, suffix: '%', label: 'Satisfaction', description: 'Student approval rate' },
 ];
 
 function CountUp({ target, suffix }: { target: number; suffix: string }) {

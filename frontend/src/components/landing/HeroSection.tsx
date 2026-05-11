@@ -6,7 +6,7 @@ import { ArrowRight, Play, Star, Users, Award, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const floatingCards = [
-  { icon: '🏆', label: 'Achievement Verified', sub: 'Hackathon Winner', color: 'from-amber-400 to-orange-500', delay: 0 },
+  { icon: '🏆', label: 'Achievement Verified', sub: 'Hackathon Winner — SIH 2024', color: 'from-amber-400 to-orange-500', delay: 0 },
   { icon: '🤖', label: 'Aura AI', sub: 'Skill gap detected', color: 'from-violet-400 to-purple-600', delay: 0.2 },
   { icon: '📜', label: 'Certificate Added', sub: 'AWS Cloud Practitioner', color: 'from-blue-400 to-indigo-600', delay: 0.4 },
   { icon: '⭐', label: 'Kudos Received', sub: 'Leadership excellence', color: 'from-pink-400 to-rose-600', delay: 0.6 },
@@ -125,11 +125,11 @@ export function HeroSection() {
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white text-sm font-bold">A</div>
                   <div>
-                    <p className="text-white font-semibold text-sm">Arjun Sharma</p>
-                    <p className="text-white/70 text-xs">Computer Science • 3rd Year</p>
+                    <p className="text-white font-semibold text-sm">Aditya Singh Rajput</p>
+                    <p className="text-white/70 text-xs">Computer Science • Final Year</p>
                   </div>
                   <div className="ml-auto bg-white/20 rounded-full px-3 py-1 text-white text-xs font-medium">
-                    85% Complete
+                    92% Complete
                   </div>
                 </div>
               </div>
@@ -153,9 +153,9 @@ export function HeroSection() {
               <div className="p-4 space-y-3">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Recent Achievements</p>
                 {[
-                  { emoji: '🏆', title: 'Smart India Hackathon', status: 'Approved', color: 'text-green-500' },
-                  { emoji: '📜', title: 'AWS Cloud Practitioner', status: 'Under Review', color: 'text-blue-500' },
-                  { emoji: '💼', title: 'Google Summer Internship', status: 'Approved', color: 'text-green-500' },
+                  { emoji: '🏆', title: 'Smart India Hackathon 2024', status: 'Approved', color: 'text-green-500' },
+                  { emoji: '📜', title: 'AWS Solutions Architect', status: 'Under Review', color: 'text-blue-500' },
+                  { emoji: '💼', title: 'Microsoft SWE Internship', status: 'Approved', color: 'text-green-500' },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
                     <span className="text-xl">{item.emoji}</span>

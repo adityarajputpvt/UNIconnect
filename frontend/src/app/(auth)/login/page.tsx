@@ -120,8 +120,8 @@ export default function LoginPage() {
       <div className="mt-6 p-4 rounded-xl bg-muted/50 border border-border">
         <p className="text-xs font-semibold text-muted-foreground mb-2">Demo credentials</p>
         <div className="space-y-1 text-xs text-muted-foreground">
-          <p>Student: student@demo.com / demo123</p>
-          <p>Faculty: faculty@demo.com / demo123</p>
+          <p>Student (Aditya): student@demo.com / demo123</p>
+          <p>Faculty (Dr. Suresh): faculty@demo.com / demo123</p>
           <p>Admin: admin@demo.com / demo123</p>
         </div>
       </div>

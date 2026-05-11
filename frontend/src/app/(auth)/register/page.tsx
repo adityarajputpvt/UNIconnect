@@ -64,7 +64,7 @@ export default function RegisterPage() {
     >
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Create your account</h1>
-        <p className="text-muted-foreground">Join thousands of students on Uni-Connect</p>
+        <p className="text-muted-foreground">Join Uni-Connect — built for India&apos;s university students</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

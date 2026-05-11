@@ -13,25 +13,25 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Uni-Connect — Your University Ecosystem',
+    default: 'Uni-Connect — AI-Powered University Achievement Platform',
     template: '%s | Uni-Connect',
   },
   description:
-    'AI-powered student achievement and university engagement platform. Manage achievements, build portfolios, and connect your complete student journey.',
-  keywords: ['university', 'student', 'achievements', 'portfolio', 'AI', 'education'],
-  authors: [{ name: 'Uni-Connect Team' }],
+    'Final Year Project by Aditya Singh Rajput. An AI-powered student achievement and university engagement platform — manage achievements, build verified portfolios, and get personalized career guidance.',
+  keywords: ['university', 'student', 'achievements', 'portfolio', 'AI', 'education', 'final year project', 'Aditya Singh Rajput'],
+  authors: [{ name: 'Aditya Singh Rajput' }],
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://uniconnect.edu',
-    title: 'Uni-Connect — Your University Ecosystem',
-    description: 'AI-powered student achievement and university engagement platform.',
+    url: 'https://uniconnect.vercel.app',
+    title: 'Uni-Connect — AI-Powered University Achievement Platform',
+    description: 'Final Year Project by Aditya Singh Rajput. AI-powered student achievement and university engagement platform.',
     siteName: 'Uni-Connect',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Uni-Connect',
-    description: 'AI-powered student achievement platform',
+    title: 'Uni-Connect | Final Year Project — Aditya Singh Rajput',
+    description: 'AI-powered student achievement and university engagement platform.',
   },
   robots: { index: true, follow: true },
 };

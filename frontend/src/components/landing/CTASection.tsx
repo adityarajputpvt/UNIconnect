@@ -32,7 +32,7 @@ export function CTASection() {
           </h2>
 
           <p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Join 100,000+ students already building their verified academic identity on Uni-Connect.
+            Join students already building their verified academic identity on Uni-Connect — the platform built for India's universities.
           </p>
 
           <div className="flex flex-wrap gap-4 justify-center">

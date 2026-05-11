@@ -42,14 +42,14 @@ export function Footer() {
               <span className="font-bold text-lg gradient-text-brand">Uni-Connect</span>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-              AI-powered student achievement and university engagement ecosystem.
+              AI-powered student achievement and university engagement ecosystem. Final Year Project by Aditya Singh Rajput.
             </p>
             <div className="flex gap-3">
               {[
-                { icon: Github, href: 'https://github.com' },
+                { icon: Github, href: 'https://github.com/adityarajputpvt' },
                 { icon: Twitter, href: 'https://twitter.com' },
-                { icon: Linkedin, href: 'https://linkedin.com' },
-                { icon: Mail, href: 'mailto:hello@uniconnect.edu' },
+                { icon: Linkedin, href: 'https://linkedin.com/in/adityasinghrajput' },
+                { icon: Mail, href: 'mailto:adityarajputpvt@gmail.com' },
               ].map(({ icon: Icon, href }, i) => (
                 <a
                   key={i}
@@ -90,7 +90,15 @@ export function Footer() {
             © {new Date().getFullYear()} Uni-Connect. All rights reserved.
           </p>
           <p className="text-muted-foreground text-sm">
-            Built with ❤️ for students everywhere
+            Final Year Project by{' '}
+            <a
+              href="https://github.com/adityarajputpvt"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-foreground font-medium hover:underline"
+            >
+              Aditya Singh Rajput
+            </a>
           </p>
         </div>
       </div>
