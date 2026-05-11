@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: uniconnect_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: uniconnect
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - uniconnect_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: uniconnect_redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    networks:
+      - uniconnect_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: uniconnect_backend
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/uniconnect
+      NODE_ENV: production
+    ports:
+      - '5000:5000'
+    networks:
+      - uniconnect_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: uniconnect_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - '3000:3000'
+    networks:
+      - uniconnect_network
+
+volumes:
+  postgres_data:
+
+networks:
+  uniconnect_network:
+    driver: bridge
