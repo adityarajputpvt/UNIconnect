@@ -1,20 +1,47 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Globe, Copy, ExternalLink, Eye, EyeOff, Share2 } from 'lucide-react';
+import { Globe, Copy, ExternalLink, Eye, EyeOff, Share2, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import dynamic from 'next/dynamic';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+const PDFExportButton = dynamic(() => import('@/components/dashboard/PDFExportButton'), { ssr: false });
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 
 export default function PortfolioPage() {
-  const { user } = useAuthStore();
+  const { user, fetchMe } = useAuthStore();
+  const queryClient = useQueryClient();
   const profile = user?.profile;
   const [isPublic, setIsPublic] = useState(profile?.isPublic ?? true);
+
+  const { data: achievementsData } = useQuery({
+    queryKey: ['achievements'],
+    queryFn: async () => {
+      const { data } = await api.get('/achievements');
+      return data.data;
+    },
+    enabled: !!user,
+  });
+
+  const visibilityMutation = useMutation({
+    mutationFn: (pub: boolean) => api.put('/profiles', { isPublic: pub }),
+    onSuccess: (_, pub) => {
+      setIsPublic(pub);
+      toast.success(pub ? 'Portfolio is now public' : 'Portfolio is now private');
+      fetchMe();
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+    onError: () => toast.error('Failed to update visibility'),
+  });
+
+  const verifiedAchievements = achievementsData?.filter((a: { status: string }) => a.status === 'APPROVED') || [];
 
   const portfolioUrl = profile?.portfolioSlug
     ? `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/portfolio/${profile.portfolioSlug}`
@@ -59,19 +86,12 @@ export default function PortfolioPage() {
               </div>
 
               <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2 flex-1"
-                  onClick={copyLink}
-                >
-                  <Copy className="w-4 h-4" />
-                  Copy Link
+                <Button variant="outline" size="sm" className="gap-2 flex-1" onClick={copyLink}>
+                  <Copy className="w-4 h-4" /> Copy Link
                 </Button>
                 <a href={portfolioUrl} target="_blank" rel="noopener noreferrer" className="flex-1">
                   <Button size="sm" className="w-full gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white border-0">
-                    <ExternalLink className="w-4 h-4" />
-                    View Portfolio
+                    <ExternalLink className="w-4 h-4" /> View Portfolio
                   </Button>
                 </a>
               </div>
@@ -96,10 +116,14 @@ export default function PortfolioPage() {
                 </p>
               </div>
             </div>
-            <Switch
-              checked={isPublic}
-              onCheckedChange={setIsPublic}
-            />
+            <div className="flex items-center gap-2">
+              {visibilityMutation.isPending && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+              <Switch
+                checked={isPublic}
+                onCheckedChange={(checked) => visibilityMutation.mutate(checked)}
+                disabled={visibilityMutation.isPending}
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -124,9 +148,9 @@ export default function PortfolioPage() {
 
       {/* Share options */}
       <Card>
-        <CardHeader><CardTitle className="text-base">Share Your Portfolio</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base">Share & Export</CardTitle></CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 mb-4">
             {[
               { label: 'Copy Link', icon: Copy, action: copyLink },
               {
@@ -141,12 +165,13 @@ export default function PortfolioPage() {
               </Button>
             ))}
           </div>
+          <PDFExportButton profile={profile} achievements={verifiedAchievements} />
         </CardContent>
       </Card>
 
       {/* Stats preview */}
       <Card>
-        <CardHeader><CardTitle className="text-base">Portfolio Preview Stats</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base">Portfolio Stats</CardTitle></CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
@@ -157,13 +182,11 @@ export default function PortfolioPage() {
               <p className="text-2xl font-bold gradient-text-brand">{profile?.skills?.length || 0}</p>
               <p className="text-xs text-muted-foreground">Skills Listed</p>
             </div>
-            <div>
-              <p className="text-2xl font-bold gradient-text-brand">
-                <Badge variant={isPublic ? 'success' : 'secondary'} className="text-xs">
-                  {isPublic ? 'Public' : 'Private'}
-                </Badge>
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">Visibility</p>
+            <div className="flex flex-col items-center">
+              <Badge variant={isPublic ? 'success' : 'secondary'} className="text-xs mb-1">
+                {isPublic ? 'Public' : 'Private'}
+              </Badge>
+              <p className="text-xs text-muted-foreground">Visibility</p>
             </div>
           </div>
         </CardContent>

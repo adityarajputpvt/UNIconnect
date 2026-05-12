@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Search, Filter, Upload, Trophy, Loader2 } from 'lucide-react';
@@ -17,8 +17,11 @@ import { categoryColors, categoryLabels, categoryIcons, statusConfig, formatDate
 import { AchievementModal } from '@/components/dashboard/AchievementModal';
 import { OCRUploadModal } from '@/components/dashboard/OCRUploadModal';
 
+import { useSearchParams } from 'next/navigation';
+
 export default function AchievementsPage() {
-  const [search, setSearch] = useState('');
+  const searchParams = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get('search') || '');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [showModal, setShowModal] = useState(false);

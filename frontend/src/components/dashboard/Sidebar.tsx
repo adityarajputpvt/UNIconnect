@@ -90,10 +90,18 @@ export function Sidebar() {
       {/* Bottom section */}
       <div className="p-3 border-t border-border space-y-1">
         <Link href="/dashboard/settings">
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
-            <Settings className="w-4 h-4" />
+          <motion.div
+            whileHover={{ x: 2 }}
+            className={cn(
+              'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+              pathname === '/dashboard/settings'
+                ? 'bg-gradient-to-r from-indigo-500/10 to-violet-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+            )}
+          >
+            <Settings className={cn('w-4 h-4', pathname === '/dashboard/settings' ? 'text-indigo-500' : '')} />
             Settings
-          </div>
+          </motion.div>
         </Link>
 
         {/* User info */}

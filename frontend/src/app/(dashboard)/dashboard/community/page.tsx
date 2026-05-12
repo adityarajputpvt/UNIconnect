@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getInitials, formatRelativeTime } from '@/lib/utils';
+import { KudosModal } from '@/components/dashboard/KudosModal';
 
 function PostCard({ post }: { post: Post }) {
   const { user } = useAuthStore();
@@ -149,6 +150,7 @@ export default function CommunityPage() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const [newPost, setNewPost] = useState('');
+  const [showKudos, setShowKudos] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['feed'],
@@ -173,9 +175,20 @@ export default function CommunityPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Community</h1>
-        <p className="text-muted-foreground text-sm mt-1">Connect with your university community</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Community</h1>
+          <p className="text-muted-foreground text-sm mt-1">Connect with your university community</p>
+        </div>
+        <Button
+          size="sm"
+          variant="outline"
+          className="gap-2"
+          onClick={() => setShowKudos(true)}
+        >
+          <Award className="w-4 h-4 text-amber-500" />
+          Send Kudos
+        </Button>
       </div>
 
       {/* Create post */}
@@ -237,6 +250,8 @@ export default function CommunityPage() {
           ))}
         </div>
       )}
+      {/* Modals */}
+      <KudosModal open={showKudos} onClose={() => setShowKudos(false)} />
     </div>
   );
 }

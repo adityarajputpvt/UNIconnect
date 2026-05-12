@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Bell, Search, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useNotificationStore } from '@/store/notificationStore';
 import { useAuthStore } from '@/store/authStore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -14,6 +15,8 @@ export function TopBar() {
   const { unreadCount, fetchNotifications } = useNotificationStore();
   const { user } = useAuthStore();
   const profile = user?.profile;
+  const router = useRouter();
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     fetchNotifications();
@@ -21,17 +24,27 @@ export function TopBar() {
 
   const initials = profile ? getInitials(profile.firstName, profile.lastName) : 'U';
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (search.trim()) {
+      router.push(`/dashboard/achievements?search=${encodeURIComponent(search.trim())}`);
+      setSearch('');
+    }
+  };
+
   return (
     <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm flex items-center justify-between px-6 sticky top-0 z-40">
       {/* Search */}
-      <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2 w-64">
-        <Search className="w-4 h-4 text-muted-foreground" />
+      <form onSubmit={handleSearch} className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2 w-64">
+        <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
         <input
           type="text"
-          placeholder="Search achievements, users..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search achievements..."
           className="bg-transparent text-sm outline-none placeholder:text-muted-foreground flex-1"
         />
-      </div>
+      </form>
 
       {/* Right actions */}
       <div className="flex items-center gap-3">
